@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Data artifacts
+*.parquet
+*.feather
+*.h5
+*.bam
+*.fastq.gz
+*.fq.gz
+
+# Env and secrets
+.env
+*.key
+*.pem
+
+# Tooling
+.pytest_cache/
+.mypy_cache/
+.dvc/cache/
+.nextflow/
+work/
+results/
