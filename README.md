@@ -23,3 +23,8 @@ Industrial-grade project focused on bioinformatics/data engineering hiring signa
 3. Implement minimal vertical slice in src/
 4. Add one integration test in tests/
 5. Add Dockerfile + CI workflow
+
+## MVP Progress
+- Added deterministic profile selector for local/SLURM/AWS Batch.
+- Added run metrics summarization (time and cost per sample).
+- Added tests covering orchestration decision logic.
