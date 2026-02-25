@@ -3,10 +3,14 @@
 
 import sys
 
+def process_data(data):
+    return f"Processed: {data}"
+
 def main():
     print("Hello, Scalable Bioinformatics Pipeline!")
     if len(sys.argv) > 1:
-        print(f"Processing {sys.argv[1]}")
+        result = process_data(sys.argv[1])
+        print(result)
 
 if __name__ == "__main__":
     main()
