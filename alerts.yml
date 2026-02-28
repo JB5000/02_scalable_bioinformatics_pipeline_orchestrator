@@ -1,0 +1,52 @@
+groups:
+  - name: orchestrator_alerts
+    interval: 30s
+    rules:
+      - alert: HighJobFailureRate
+        expr: |
+          (
+            sum(rate(jobs_failed_total[5m]))
+            /
+            sum(rate(jobs_total[5m]))
+          ) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High job failure rate"
+          description: "Failure rate is {{ $value | humanizePercentage }}"
+
+      - alert: DatabaseDown
+        expr: up{job="postgres"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "PostgreSQL database is down"
+
+      - alert: RedisDown
+        expr: up{job="redis"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Redis cache is down"
+
+      - alert: APILatencyHigh
+        expr: |
+          histogram_quantile(0.95, http_request_duration_seconds_bucket) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "API latency is high"
+          description: "P95 latency is {{ $value | humanizeDuration }}"
+
+      - alert: QueueBacklog
+        expr: job_queue_length > 100
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Job queue backlog is building"
+          description: "{{ $value }} jobs waiting"
