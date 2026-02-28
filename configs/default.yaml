@@ -1,0 +1,88 @@
+# Default Configuration for Bioinformatics Pipeline Orchestrator
+
+# Execution profiles
+profiles:
+  local:
+    executor: local
+    cpus: 4
+    memory: 8GB
+    disk: 100GB
+    cost_per_hour: 0.0
+    best_for: Development, testing, small datasets
+
+  slurm:
+    executor: slurm
+    queue: general
+    time: 24h
+    cpus_per_task: 8
+    memory_per_task: 32GB
+    cost_per_hour: 0.50
+    best_for: Medium datasets, HPC clusters
+
+  awsbatch:
+    executor: awsbatch
+    jobQueue: genomics-queue
+    jobDefinition: genomics-processor
+    instanceType: t3.large
+    vCPU: 4
+    memory: 8GB
+    cost_per_hour: 0.15
+    best_for: Large datasets, cloud-native deployments
+
+# Database configuration
+database:
+  type: postgresql
+  host: localhost
+  port: 5432
+  database: genomics_pipeline
+  pool_size: 10
+  max_overflow: 20
+
+# API configuration
+api:
+  host: 0.0.0.0
+  port: 8000
+  debug: false
+  workers: 4
+  timeout: 300
+
+# Logging configuration
+logging:
+  level: INFO
+  format: json
+  file: /var/log/orchestrator.log
+  max_size_mb: 100
+  backup_count: 5
+
+# Workflow configuration
+workflows:
+  nextflow_path: /usr/local/bin/nextflow
+  work_dir: /tmp/nf-work
+  output_dir: ./results
+  enable_docker: true
+
+# Data paths
+data:
+  raw_dir: ./data/raw
+  processed_dir: ./data/processed
+  max_file_size_gb: 500
+
+# Security
+security:
+  enable_auth: true
+  api_key_required: true
+  token_expiry_hours: 24
+  rate_limit_rpm: 100
+
+# Monitoring
+monitoring:
+  prometheus_enabled: true
+  prometheus_port: 9090
+  metrics_retention_days: 30
+  
+# Job configuration
+jobs:
+  max_retries: 3
+  retry_delay_seconds: 300
+  job_timeout_hours: 48
+  polling_interval_seconds: 30
