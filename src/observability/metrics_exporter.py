@@ -95,3 +95,26 @@ class MetricsExporter:
             "failure_rate": round(failed / max(total, 1), 4),
             "total_cost_usd": round(total_cost, 4),
         }
+
+    def get_runtime_efficiency(self) -> Dict:
+        """Get runtime-focused efficiency indicators for completed jobs."""
+        completed_jobs = [
+            job for job in self.jobs.values() if job.status == "completed" and job.end_time > 0
+        ]
+        if not completed_jobs:
+            return {
+                "completed_jobs": 0,
+                "avg_duration_seconds": 0.0,
+                "avg_cpu_seconds": 0.0,
+                "cpu_utilization_ratio": 0.0,
+            }
+
+        total_duration = sum(job.duration_seconds() for job in completed_jobs)
+        total_cpu = sum(job.cpu_seconds for job in completed_jobs)
+        count = len(completed_jobs)
+        return {
+            "completed_jobs": count,
+            "avg_duration_seconds": round(total_duration / count, 4),
+            "avg_cpu_seconds": round(total_cpu / count, 4),
+            "cpu_utilization_ratio": round(total_cpu / max(total_duration, 1e-9), 4),
+        }
