@@ -83,3 +83,15 @@ class MetricsExporter:
             "success_rate": completed / max(total, 1),
             "total_cost_usd": self.counters["total_cost_usd"],
         }
+
+    def get_cost_efficiency(self) -> Dict:
+        """Get simple cost-efficiency indicators."""
+        completed = self.counters["completed_jobs"]
+        failed = self.counters["failed_jobs"]
+        total = self.counters["total_jobs"]
+        total_cost = float(self.counters["total_cost_usd"])
+        return {
+            "avg_cost_per_completed_job": round(total_cost / max(completed, 1), 4),
+            "failure_rate": round(failed / max(total, 1), 4),
+            "total_cost_usd": round(total_cost, 4),
+        }
