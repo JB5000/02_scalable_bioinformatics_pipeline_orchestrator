@@ -16,3 +16,12 @@ def choose_profile(workload: Workload) -> str:
     if workload.hpc_available and workload.samples >= 20:
         return "slurm"
     return "local"
+
+
+def choose_profile_with_reason(workload: Workload) -> tuple[str, str]:
+    profile = choose_profile(workload)
+    if profile == "awsbatch":
+        return profile, "cloud-enabled high-volume workload"
+    if profile == "slurm":
+        return profile, "hpc available for medium/large workload"
+    return profile, "small workload fallback"
