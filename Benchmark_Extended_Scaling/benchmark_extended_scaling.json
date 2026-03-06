@@ -1,0 +1,261 @@
+{
+  "benchmark": "extended_scaling_iso_param",
+  "device": "cpu",
+  "seed": 42,
+  "seq_len": 16,
+  "epochs": 2,
+  "batch_size": 64,
+  "layers": [
+    4,
+    6,
+    8
+  ],
+  "dataset": {
+    "files": 473,
+    "tokens": 153707,
+    "vocab_size": 10002,
+    "samples": 3000,
+    "train": 2400,
+    "val": 300,
+    "test": 300
+  },
+  "results": [
+    {
+      "layers": 4,
+      "all_to_all": {
+        "params": 11414880,
+        "param_memory_mb": 43.5443115234375,
+        "flops_per_forward": 21222400.0,
+        "train_time_s": 18.722869634628296,
+        "epoch_time_s": 9.361434817314148,
+        "val": {
+          "loss": 6.48431848526001,
+          "accuracy": 0.16583333333333333,
+          "perplexity": 654.7925613590846
+        },
+        "test": {
+          "loss": 6.462564465204875,
+          "accuracy": 0.17291666666666666,
+          "perplexity": 640.702009597079
+        },
+        "infer_ms_batch1": 6.001817385355632,
+        "infer_ms_batchN": 41.501712799072266,
+        "throughput_tok_s_batch1": 2665.8591844263415,
+        "throughput_tok_s_batchN": 24673.680456457947,
+        "acc_per_mparam": 0.015148356063897882,
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 8.404505328128213,
+            "val_loss": 7.6337666511535645,
+            "val_acc": 0.120625,
+            "val_ppl": 2066.8203678780974
+          },
+          {
+            "epoch": 2,
+            "train_loss": 6.655481602016248,
+            "val_loss": 6.48431848526001,
+            "val_acc": 0.16583333333333333,
+            "val_ppl": 654.7925613590846
+          }
+        ]
+      },
+      "transformer": {
+        "params": 11243168,
+        "param_memory_mb": 42.8892822265625,
+        "flops_per_forward": 27038720.0,
+        "train_time_s": 25.06155776977539,
+        "epoch_time_s": 12.530778884887695,
+        "val": {
+          "loss": 6.481398509343465,
+          "accuracy": 0.11395833333333333,
+          "perplexity": 652.8833716001616
+        },
+        "test": {
+          "loss": 6.449946428934733,
+          "accuracy": 0.12229166666666667,
+          "perplexity": 632.6683991842974
+        },
+        "infer_ms_batch1": 7.555778821309407,
+        "infer_ms_batchN": 53.21229100227356,
+        "throughput_tok_s_batch1": 2117.584484457847,
+        "throughput_tok_s_batchN": 19243.674360050547,
+        "acc_per_mparam": 0.010876975836940857,
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 8.329249482405814,
+            "val_loss": 7.1482545852661135,
+            "val_acc": 0.08208333333333333,
+            "val_ppl": 1271.884051502544
+          },
+          {
+            "epoch": 2,
+            "train_loss": 5.899148137945878,
+            "val_loss": 6.481398509343465,
+            "val_acc": 0.11395833333333333,
+            "val_ppl": 652.8833716001616
+          }
+        ]
+      }
+    },
+    {
+      "layers": 6,
+      "all_to_all": {
+        "params": 11591392,
+        "param_memory_mb": 44.2176513671875,
+        "flops_per_forward": 21574656.0,
+        "train_time_s": 37.80705523490906,
+        "epoch_time_s": 18.90352761745453,
+        "val": {
+          "loss": 6.501989571253459,
+          "accuracy": 0.17541666666666667,
+          "perplexity": 666.4662970366836
+        },
+        "test": {
+          "loss": 6.48800324122111,
+          "accuracy": 0.18395833333333333,
+          "perplexity": 657.2097628166289
+        },
+        "infer_ms_batch1": 14.04161294301351,
+        "infer_ms_batchN": 46.411511301994324,
+        "throughput_tok_s_batch1": 1139.47023500323,
+        "throughput_tok_s_batchN": 22063.491820745738,
+        "acc_per_mparam": 0.015870253834339595,
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 8.394539996197349,
+            "val_loss": 7.65715628306071,
+            "val_acc": 0.11520833333333333,
+            "val_ppl": 2115.7323219469326
+          },
+          {
+            "epoch": 2,
+            "train_loss": 6.660764380505211,
+            "val_loss": 6.501989571253459,
+            "val_acc": 0.17541666666666667,
+            "val_ppl": 666.4662970366836
+          }
+        ]
+      },
+      "transformer": {
+        "params": 11702112,
+        "param_memory_mb": 44.6400146484375,
+        "flops_per_forward": 31567008.0,
+        "train_time_s": 71.58831977844238,
+        "epoch_time_s": 35.79415988922119,
+        "val": {
+          "loss": 6.4698628870646155,
+          "accuracy": 0.11604166666666667,
+          "perplexity": 645.3952288637705
+        },
+        "test": {
+          "loss": 6.432875852584839,
+          "accuracy": 0.12020833333333333,
+          "perplexity": 621.960043907407
+        },
+        "infer_ms_batch1": 22.52877871195475,
+        "infer_ms_batchN": 185.60012876987457,
+        "throughput_tok_s_batch1": 710.2027235728364,
+        "throughput_tok_s_batchN": 5517.237551433257,
+        "acc_per_mparam": 0.010272362231136853,
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 8.195758919966849,
+            "val_loss": 7.025983409881592,
+            "val_acc": 0.07708333333333334,
+            "val_ppl": 1125.500843601739
+          },
+          {
+            "epoch": 2,
+            "train_loss": 5.806618401878758,
+            "val_loss": 6.4698628870646155,
+            "val_acc": 0.11604166666666667,
+            "val_ppl": 645.3952288637705
+          }
+        ]
+      }
+    },
+    {
+      "layers": 8,
+      "all_to_all": {
+        "params": 11784288,
+        "param_memory_mb": 44.9534912109375,
+        "flops_per_forward": 21959680.0,
+        "train_time_s": 15.68089485168457,
+        "epoch_time_s": 7.840447425842285,
+        "val": {
+          "loss": 6.479877882003784,
+          "accuracy": 0.19479166666666667,
+          "perplexity": 651.8913337467823
+        },
+        "test": {
+          "loss": 6.466755428314209,
+          "accuracy": 0.19791666666666666,
+          "perplexity": 643.3928026521294
+        },
+        "infer_ms_batch1": 5.1391855875651045,
+        "infer_ms_batchN": 36.255162954330444,
+        "throughput_tok_s_batch1": 3113.3337622042645,
+        "throughput_tok_s_batchN": 28244.253136853986,
+        "acc_per_mparam": 0.016794961788668662,
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 8.37110740260074,
+            "val_loss": 7.637612476348877,
+            "val_acc": 0.13083333333333333,
+            "val_ppl": 2074.784301856248
+          },
+          {
+            "epoch": 2,
+            "train_loss": 6.633195299851267,
+            "val_loss": 6.479877882003784,
+            "val_acc": 0.19479166666666667,
+            "val_ppl": 651.8913337467823
+          }
+        ]
+      },
+      "transformer": {
+        "params": 11808372,
+        "param_memory_mb": 45.04536437988281,
+        "flops_per_forward": 35047584.0,
+        "train_time_s": 35.585376262664795,
+        "epoch_time_s": 17.792688131332397,
+        "val": {
+          "loss": 6.439741446177165,
+          "accuracy": 0.12770833333333334,
+          "perplexity": 626.2448608746157
+        },
+        "test": {
+          "loss": 6.416501359939575,
+          "accuracy": 0.12541666666666668,
+          "perplexity": 611.8586917017424
+        },
+        "infer_ms_batch1": 13.861756324768066,
+        "infer_ms_batchN": 82.39126801490784,
+        "throughput_tok_s_batch1": 1154.2548884235787,
+        "throughput_tok_s_batchN": 12428.50152293709,
+        "acc_per_mparam": 0.010620995567099908,
+        "history": [
+          {
+            "epoch": 1,
+            "train_loss": 8.261799473511545,
+            "val_loss": 7.104316876729329,
+            "val_acc": 0.07729166666666666,
+            "val_ppl": 1217.210295981113
+          },
+          {
+            "epoch": 2,
+            "train_loss": 5.85667495978506,
+            "val_loss": 6.439741446177165,
+            "val_acc": 0.12770833333333334,
+            "val_ppl": 626.2448608746157
+          }
+        ]
+      }
+    }
+  ]
+}
