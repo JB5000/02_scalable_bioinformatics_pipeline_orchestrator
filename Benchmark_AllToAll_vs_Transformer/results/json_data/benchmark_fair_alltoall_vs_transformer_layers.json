@@ -1,0 +1,132 @@
+[
+  {
+    "layers": 4,
+    "param_gap_pct": 2.3483520475039876,
+    "all_to_all": {
+      "params": 506568,
+      "flops": 1001984,
+      "train_time_s": 0.6033520698547363,
+      "infer_ms": 0.4496157169342041,
+      "accuracy": 0.9829545454545454,
+      "acc_per_mparam": 1.940419737240697
+    },
+    "transformer": {
+      "params": 494672,
+      "flops": 3880400,
+      "train_time_s": 1.4258155822753906,
+      "infer_ms": 1.258178949356079,
+      "accuracy": 0.9829545454545454,
+      "acc_per_mparam": 1.9870834521754728
+    },
+    "transformer_config": {
+      "embed_dim": 100,
+      "num_heads": 4,
+      "params": 494672,
+      "rel_error": 0.023483520475039876
+    }
+  },
+  {
+    "layers": 6,
+    "param_gap_pct": 2.6776378152820803,
+    "all_to_all": {
+      "params": 818632,
+      "flops": 1624576,
+      "train_time_s": 0.7284836769104004,
+      "infer_ms": 0.5915749073028564,
+      "accuracy": 0.9829545454545454,
+      "acc_per_mparam": 1.200728221538549
+    },
+    "transformer": {
+      "params": 796712,
+      "flops": 6285344,
+      "train_time_s": 2.4505298137664795,
+      "infer_ms": 2.2616851329803467,
+      "accuracy": 0.9829545454545454,
+      "acc_per_mparam": 1.2337639516595023
+    },
+    "transformer_config": {
+      "embed_dim": 104,
+      "num_heads": 8,
+      "params": 796712,
+      "rel_error": 0.026776378152820805
+    }
+  },
+  {
+    "layers": 8,
+    "param_gap_pct": 2.5279377244547883,
+    "all_to_all": {
+      "params": 1196232,
+      "flops": 2378240,
+      "train_time_s": 3.2039332389831543,
+      "infer_ms": 1.8875229358673096,
+      "accuracy": 0.9829545454545454,
+      "acc_per_mparam": 0.8217089539943301
+    },
+    "transformer": {
+      "params": 1226472,
+      "flops": 9707712,
+      "train_time_s": 5.098246335983276,
+      "infer_ms": 4.659216403961182,
+      "accuracy": 0.9829545454545454,
+      "acc_per_mparam": 0.8014488267604523
+    },
+    "transformer_config": {
+      "embed_dim": 112,
+      "num_heads": 8,
+      "params": 1226472,
+      "rel_error": 0.02527937724454788
+    }
+  },
+  {
+    "layers": 10,
+    "param_gap_pct": 0.0858867563597679,
+    "all_to_all": {
+      "params": 1639368,
+      "flops": 3262976,
+      "train_time_s": 1.5989224910736084,
+      "infer_ms": 2.100743055343628,
+      "accuracy": 0.9829545454545454,
+      "acc_per_mparam": 0.5995935906120806
+    },
+    "transformer": {
+      "params": 1640776,
+      "flops": 13009168,
+      "train_time_s": 5.46934962272644,
+      "infer_ms": 7.328670024871826,
+      "accuracy": 0.9829545454545454,
+      "acc_per_mparam": 0.599079061038524
+    },
+    "transformer_config": {
+      "embed_dim": 116,
+      "num_heads": 4,
+      "params": 1640776,
+      "rel_error": 0.0008588675635976791
+    }
+  },
+  {
+    "layers": 12,
+    "param_gap_pct": 2.0655108843410734,
+    "all_to_all": {
+      "params": 2148040,
+      "flops": 4278784,
+      "train_time_s": 2.788795232772827,
+      "infer_ms": 3.877546787261963,
+      "accuracy": 0.9829545454545454,
+      "acc_per_mparam": 0.45760532646251717
+    },
+    "transformer": {
+      "params": 2103672,
+      "flops": 16698720,
+      "train_time_s": 9.448302268981934,
+      "infer_ms": 6.182726621627808,
+      "accuracy": 0.9829545454545454,
+      "acc_per_mparam": 0.4672565616001665
+    },
+    "transformer_config": {
+      "embed_dim": 120,
+      "num_heads": 8,
+      "params": 2103672,
+      "rel_error": 0.020655108843410735
+    }
+  }
+]
