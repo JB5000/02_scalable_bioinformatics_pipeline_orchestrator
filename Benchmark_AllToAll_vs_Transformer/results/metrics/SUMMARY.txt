@@ -1,0 +1,33 @@
+================================================================================
+ALL-TO-ALL vs TRANSFORMER: SUMMARY OF RESULTS
+================================================================================
+
+Dataset: 33163 tokens, 2057 vocab
+Settings: Batch=64, SeqLen=12, Epochs=2
+
+
+LAYERS: 4 (Parameter Gap: 1.14%)
+--------------------------------------------------------------------------------
+Metric                                   All-to-All           Transformer         
+--------------------------------------------------------------------------------
+Parameters                               2,026,092            2,002,902           
+FLOPs                                    3,733,760            8,429,256           
+Training Time (s)                        5.986                10.383              
+Infer Latency B=1 (ms)                   4.24                 2.60                
+Infer Latency B=64 (ms)                  13.28                30.41               
+Throughput B=64 (tok/s)                  57,830               25,256              
+Test Accuracy                            0.0360               0.0353              
+Test Perplexity                          842.6                850.2               
+
+LAYERS: 6 (Parameter Gap: 0.57%)
+--------------------------------------------------------------------------------
+Metric                                   All-to-All           Transformer         
+--------------------------------------------------------------------------------
+Parameters                               2,169,836            2,182,120           
+FLOPs                                    4,020,480            11,583,120          
+Training Time (s)                        4.091                9.988               
+Infer Latency B=1 (ms)                   1.85                 2.34                
+Infer Latency B=64 (ms)                  9.63                 33.16               
+Throughput B=64 (tok/s)                  79,749               23,161              
+Test Accuracy                            0.0340               0.0303              
+Test Perplexity                          841.0                826.9               
