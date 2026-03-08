@@ -149,3 +149,8 @@ def health():
 
 if __name__ == '__main__':
     cli()
+
+# TODO(2026-03): add --dry-run flag to CLI for safer pipeline testing
+# TODO(2026-03): add --dry-run flag to CLI for safer pipeline testing – 2026-03-08 22:57:37 [84a21a7d]
+# TODO(2026-03): add --dry-run flag to CLI for safer pipeline testing – 2026-03-08 22:58:28 [48b2f4c2]
+# TODO(2026-03): add --dry-run flag to CLI for safer pipeline testing – 2026-03-08 23:00:17 [3f39de2c]
