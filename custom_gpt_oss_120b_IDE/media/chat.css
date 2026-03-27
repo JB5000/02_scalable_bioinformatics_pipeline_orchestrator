@@ -1,0 +1,96 @@
+:root {
+  color-scheme: light dark;
+}
+
+body {
+  margin: 0;
+  font-family: ui-sans-serif, "Segoe UI", sans-serif;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  height: 100vh;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--vscode-panel-border);
+}
+
+h1 {
+  margin: 0;
+  font-size: 14px;
+  letter-spacing: 0.4px;
+}
+
+#messages {
+  padding: 14px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.msg {
+  padding: 9px 11px;
+  border-radius: 10px;
+  max-width: 90%;
+  white-space: pre-wrap;
+  line-height: 1.35;
+  border: 1px solid transparent;
+}
+
+.msg.user {
+  align-self: flex-end;
+  background: color-mix(in srgb, var(--vscode-button-background) 20%, transparent);
+  border-color: var(--vscode-button-background);
+}
+
+.msg.assistant {
+  align-self: flex-start;
+  background: color-mix(in srgb, var(--vscode-textBlockQuote-background) 50%, transparent);
+  border-color: var(--vscode-textBlockQuote-border);
+}
+
+.msg.status {
+  align-self: center;
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.msg.error {
+  align-self: center;
+  background: color-mix(in srgb, #ff4444 22%, transparent);
+  border-color: #ff4444;
+}
+
+footer {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  padding: 10px;
+  border-top: 1px solid var(--vscode-panel-border);
+}
+
+textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 72px;
+  padding: 8px;
+  border: 1px solid var(--vscode-input-border);
+  background: var(--vscode-input-background);
+  color: var(--vscode-input-foreground);
+}
+
+button {
+  border: 1px solid var(--vscode-button-border);
+  background: var(--vscode-button-background);
+  color: var(--vscode-button-foreground);
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: var(--vscode-button-hoverBackground);
+}

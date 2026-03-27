@@ -1,0 +1,73 @@
+{
+  "name": "gpt-oss-120b-chat",
+  "displayName": "GPT OSS 120B Chat",
+  "description": "VS Code chat extension for DeepInfra gpt-oss-120b",
+  "version": "0.0.1",
+  "publisher": "jb5000",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other",
+    "Chat"
+  ],
+  "activationEvents": [
+    "onCommand:gptOss120b.openChat"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "gptOss120b.openChat",
+        "title": "GPT OSS 120B: Open Chat"
+      }
+    ],
+    "configuration": {
+      "title": "GPT OSS 120B Chat",
+      "properties": {
+        "gptOss120b.deepinfraApiKey": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "DeepInfra API key. You can also set DEEPINFRA_API_KEY in your environment.",
+          "scope": "machine"
+        },
+        "gptOss120b.model": {
+          "type": "string",
+          "default": "gpt-oss-120b",
+          "description": "Model name sent to DeepInfra"
+        },
+        "gptOss120b.baseUrl": {
+          "type": "string",
+          "default": "https://api.deepinfra.com/v1/openai",
+          "description": "DeepInfra OpenAI-compatible base URL"
+        },
+        "gptOss120b.systemPrompt": {
+          "type": "string",
+          "default": "You are a helpful coding assistant. Give practical answers and concise code snippets.",
+          "description": "System prompt injected before each chat request"
+        },
+        "gptOss120b.temperature": {
+          "type": "number",
+          "default": 0.2,
+          "minimum": 0,
+          "maximum": 2,
+          "description": "Sampling temperature"
+        },
+        "gptOss120b.maxTokens": {
+          "type": "number",
+          "default": 1400,
+          "minimum": 64,
+          "maximum": 4096,
+          "description": "Maximum completion tokens"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "lint": "echo 'No linter configured yet'",
+    "test": "echo 'No tests yet'"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0"
+  }
+}
