@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "e-amas-system"
+version = "0.1.0"
+description = "Evolutionary Adversarial Multi-Agent System with async manager-worker batching"
+readme = "README.md"
+requires-python = ">=3.10"
+
+[project.scripts]
+e-amas = "e_amas.cli:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

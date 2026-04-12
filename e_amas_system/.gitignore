@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+runtime/*.json
+runtime/*.jsonl
+e_amas.log
