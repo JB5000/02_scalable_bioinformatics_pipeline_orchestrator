@@ -342,6 +342,15 @@ def main() -> int:
     parser.add_argument("--interval", default="1m")
     parser.add_argument("--input-csv", default=None, help="Optional local CSV with minute data instead of yfinance")
     parser.add_argument("--output-dir", default=str(DEFAULT_OUTPUT_ROOT / "gbpusd_recency_experiment"))
+    parser.add_argument("--train-windows-hours", default="all,168,72,24,12")
+    parser.add_argument("--test-horizon-hours", type=int, default=12)
+    parser.add_argument("--fold-step-hours", type=int, default=12)
+    parser.add_argument("--fast-spans", default="3,5,8")
+    parser.add_argument("--slow-spans", default="12,24,48")
+    parser.add_argument("--thresholds", default="0.0,0.25,0.5,0.75")
+    parser.add_argument("--cost-bps", type=float, default=1.5)
+    parser.add_argument("--min-train-bars", type=int, default=1500)
+    parser.add_argument("--max-folds", type=int, default=20)
     args = parser.parse_args()
 
     output_dir = Path(args.output_dir)
@@ -361,6 +370,85 @@ def main() -> int:
     raw_csv = output_dir / "gbpusd_1m_raw.csv"
     price_data.to_csv(raw_csv, index_label="timestamp")
     logger.info("Saved raw minute data to %s", raw_csv)
+
+    if len(price_data) < args.min_train_bars + args.test_horizon_hours * 60 + 2:
+        logger.warning("The loaded data is short (%s bars). Results will be noisy.", len(price_data))
+
+    fast_spans = _parse_int_list(args.fast_spans)
+    slow_spans = _parse_int_list(args.slow_spans)
+    thresholds = _parse_float_list(args.thresholds)
+    train_windows_hours = [item.strip().lower() for item in args.train_windows_hours.split(",") if item.strip()]
+    test_horizon_bars = args.test_horizon_hours * 60
+    fold_step_bars = args.fold_step_hours * 60
+
+    fold_starts = list(range(args.min_train_bars, len(price_data) - test_horizon_bars - 1, fold_step_bars))
+    if args.max_folds == 0:
+        fold_starts = []
+    elif args.max_folds > 0:
+        fold_starts = fold_starts[: args.max_folds]
+    if not fold_starts:
+        raise RuntimeError("Not enough data to run a walk-forward experiment")
+
+    rows: list[dict[str, object]] = []
+    equity_curves: dict[int, pd.Series] = {}
+    row_id = 0
+
+    for fast_span in fast_spans:
+        for slow_span in slow_spans:
+            if slow_span <= fast_span:
+                continue
+
+            logger.info("Building feature frame for fast=%s slow=%s", fast_span, slow_span)
+            feature_frame = build_feature_frame(price_data, fast_span=fast_span, slow_span=slow_span)
+
+            for fold_id, cutoff_pos in enumerate(fold_starts, start=1):
+                cutoff_time = price_data.index[cutoff_pos]
+                logger.info("Fold %s cutoff=%s", fold_id, cutoff_time)
+
+                for window_label in train_windows_hours:
+                    try:
+                        best_threshold, train_metrics, test_metrics, train_equity, test_equity = _evaluate_window_fold(
+                            feature_frame=feature_frame,
+                            window_label=window_label,
+                            cutoff_pos=cutoff_pos,
+                            test_horizon_bars=test_horizon_bars,
+                            thresholds=thresholds,
+                            cost_bps=args.cost_bps,
+                        )
+                    except RuntimeError as exc:
+                        logger.warning("Skipping fold %s window=%s due to: %s", fold_id, window_label, exc)
+                        continue
+
+                    actual_window_label = "all_history" if window_label == "all" else f"recent_{window_label}h"
+                    row_id += 1
+                    rows.append(
+                        {
+                            "row_id": row_id,
+                            "window_label": actual_window_label,
+                            "fast_span": fast_span,
+                            "slow_span": slow_span,
+                            "threshold": best_threshold,
+                            "fold_id": fold_id,
+                            "train_start": price_data.index[_window_start_pos(price_data.index, cutoff_pos, window_label)].isoformat(),
+                            "train_end": price_data.index[cutoff_pos - 1].isoformat(),
+                            "test_start": price_data.index[cutoff_pos].isoformat(),
+                            "test_end": price_data.index[min(len(price_data) - 1, cutoff_pos + test_horizon_bars)].isoformat(),
+                            **{f"train_{key}": value for key, value in train_metrics.items()},
+                            **{f"test_{key}": value for key, value in test_metrics.items()},
+                            "train_score": _score_metrics(train_metrics),
+                            "test_score": _score_metrics(test_metrics),
+                        }
+                    )
+                    equity_curves[row_id] = test_equity
+
+    if not rows:
+        raise RuntimeError("No walk-forward folds were completed")
+
+    results_df = pd.DataFrame(rows).sort_values(["window_label", "fold_id", "fast_span", "slow_span"]).reset_index(drop=True)
+    results_csv = output_dir / "fold_results.csv"
+    results_df.to_csv(results_csv, index=False)
+    logger.info("Saved fold results to %s", results_csv)
+
     print(f"Saved {len(price_data)} bars to {raw_csv}")
     return 0
 
