@@ -185,6 +185,88 @@ def build_feature_frame(data: pd.DataFrame, fast_span: int, slow_span: int) -> p
     return feature_frame.set_index("timestamp").sort_index()
 
 
+def _signal_from_scores(feature_frame: pd.DataFrame, threshold: float) -> pd.Series:
+    signal = pd.Series(0, index=feature_frame.index, dtype=int)
+    signal.loc[feature_frame["composite_score"] > threshold] = 1
+    signal.loc[feature_frame["composite_score"] < -threshold] = -1
+    signal.name = "signal"
+    return signal
+
+
+def _period_metrics(period_frame: pd.DataFrame, *, initial_equity: float = 1000.0, cost_bps: float = 0.0) -> tuple[pd.Series, dict[str, float]]:
+    if period_frame.empty or len(period_frame) < 2:
+        return pd.Series(dtype=float), {
+            "final_equity_eur": initial_equity,
+            "total_return_pct": 0.0,
+            "cagr_pct": 0.0,
+            "annualized_volatility_pct": 0.0,
+            "max_drawdown_pct": 0.0,
+            "sharpe": 0.0,
+            "num_bars": float(len(period_frame)),
+            "hit_rate_pct": 0.0,
+            "turnover": 0.0,
+        }
+
+    closes = period_frame["close"].astype(float).to_numpy()
+    signals = period_frame["signal"].astype(float).to_numpy()
+    next_returns = closes[1:] / closes[:-1] - 1.0
+
+    cost_rate = cost_bps / 10000.0
+    turnover = np.empty(len(next_returns), dtype=float)
+    previous_position = 0.0
+    for i, position in enumerate(signals[:-1]):
+        turnover[i] = abs(position - previous_position)
+        previous_position = position
+
+    net_returns = signals[:-1] * next_returns - turnover * cost_rate
+    equity = np.empty(len(period_frame), dtype=float)
+    equity[0] = initial_equity
+    for i, period_return in enumerate(net_returns, start=1):
+        equity[i] = equity[i - 1] * (1.0 + period_return)
+
+    equity_series = pd.Series(equity, index=period_frame.index, name="equity_eur")
+    positive_equity = equity_series[equity_series > 0]
+    if positive_equity.empty:
+        return equity_series, {
+            "final_equity_eur": initial_equity,
+            "total_return_pct": 0.0,
+            "cagr_pct": 0.0,
+            "annualized_volatility_pct": 0.0,
+            "max_drawdown_pct": 0.0,
+            "sharpe": 0.0,
+            "num_bars": float(len(period_frame)),
+            "hit_rate_pct": 0.0,
+            "turnover": float(turnover.sum()),
+        }
+
+    returns_series = equity_series.pct_change().dropna()
+    years = max((positive_equity.index[-1] - positive_equity.index[0]).total_seconds() / (365.25 * 24 * 3600), 1.0 / (365.25 * 24 * 60))
+    final_equity = float(positive_equity.iloc[-1])
+    total_return = final_equity / initial_equity - 1.0
+    cagr = (final_equity / initial_equity) ** (1.0 / years) - 1.0 if years > 0 else 0.0
+    annualization = 365.25 * 24 * 60
+    volatility = float(returns_series.std() * np.sqrt(annualization)) if not returns_series.empty else 0.0
+    sharpe = float((returns_series.mean() / returns_series.std()) * np.sqrt(annualization)) if returns_series.std() and returns_series.std() > 0 else 0.0
+    drawdown = equity_series / equity_series.cummax() - 1.0
+    max_drawdown = float(drawdown.min()) if not drawdown.empty else 0.0
+    hit_rate = float((net_returns > 0).mean()) if len(net_returns) else 0.0
+    return equity_series, {
+        "final_equity_eur": final_equity,
+        "total_return_pct": total_return * 100.0,
+        "cagr_pct": cagr * 100.0,
+        "annualized_volatility_pct": volatility * 100.0,
+        "max_drawdown_pct": max_drawdown * 100.0,
+        "sharpe": sharpe,
+        "num_bars": float(len(period_frame)),
+        "hit_rate_pct": hit_rate * 100.0,
+        "turnover": float(turnover.sum()),
+    }
+
+
+def _score_metrics(metrics: dict[str, float]) -> float:
+    return float(metrics["cagr_pct"] - 0.4 * abs(metrics["max_drawdown_pct"]) + 0.35 * metrics["sharpe"])
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Download and snapshot GBPUSD 1m data")
     parser.add_argument("--symbol", default="GBPUSD=X")
