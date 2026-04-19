@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import logging
+import numpy as np
 from pathlib import Path
 
 import pandas as pd
@@ -21,6 +22,13 @@ except Exception:  # pragma: no cover - handled at runtime
 
 ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_OUTPUT_ROOT = ROOT / "analysis_outputs"
+TIMEFRAMES = ("5min", "15min", "1h", "4h")
+TIMEFRAME_WEIGHTS = {
+    "5min": 0.10,
+    "15min": 0.15,
+    "1h": 0.25,
+    "4h": 0.50,
+}
 
 
 def _setup_logging(output_dir: Path) -> logging.Logger:
@@ -121,6 +129,60 @@ def load_gbpusd_1m_data(
     if raw.empty:
         raise RuntimeError(f"No GBPUSD data downloaded for {symbol}")
     return _normalize_price_frame(raw)
+
+
+def _resample_ohlc(data: pd.DataFrame, timeframe: str) -> pd.DataFrame:
+    aggregation: dict[str, str] = {
+        "open": "first",
+        "high": "max",
+        "low": "min",
+        "close": "last",
+    }
+    if "volume" in data.columns:
+        aggregation["volume"] = "sum"
+
+    resampled = data.resample(timeframe, label="right", closed="right").agg(aggregation)
+    resampled = resampled.dropna(subset=["open", "high", "low", "close"])
+    return resampled
+
+
+def _trend_score_series(bars: pd.DataFrame, fast_span: int, slow_span: int) -> pd.Series:
+    close = bars["close"].astype(float)
+    fast = close.ewm(span=fast_span, adjust=False).mean()
+    slow = close.ewm(span=slow_span, adjust=False).mean()
+    raw_gap = (fast - slow) / close.replace(0.0, np.nan)
+    volatility = close.pct_change().rolling(max(5, slow_span // 2), min_periods=max(3, fast_span // 2)).std()
+    score = raw_gap / volatility.replace(0.0, np.nan)
+    score = score.replace([np.inf, -np.inf], np.nan).ffill().fillna(0.0)
+    score.index.name = "timestamp"
+    return score
+
+
+def build_feature_frame(data: pd.DataFrame, fast_span: int, slow_span: int) -> pd.DataFrame:
+    minute = data.copy()
+    minute.index.name = "timestamp"
+    feature_frame = minute[["close"]].reset_index().sort_values("timestamp")
+
+    for timeframe in TIMEFRAMES:
+        resampled = _resample_ohlc(minute, timeframe)
+        if resampled.empty:
+            feature_frame[f"score_{timeframe}"] = 0.0
+            continue
+
+        score = _trend_score_series(resampled, fast_span=fast_span, slow_span=slow_span).rename(f"score_{timeframe}")
+        score_frame = score.reset_index().sort_values("timestamp")
+        feature_frame = pd.merge_asof(feature_frame, score_frame, on="timestamp", direction="backward")
+
+    for timeframe in TIMEFRAMES:
+        column = f"score_{timeframe}"
+        feature_frame[column] = feature_frame[column].fillna(0.0).astype(float)
+
+    feature_frame["composite_score"] = 0.0
+    for timeframe in TIMEFRAMES:
+        feature_frame["composite_score"] += feature_frame[f"score_{timeframe}"] * TIMEFRAME_WEIGHTS[timeframe]
+    feature_frame["composite_score"] = feature_frame["composite_score"].replace([np.inf, -np.inf], np.nan).fillna(0.0)
+
+    return feature_frame.set_index("timestamp").sort_index()
 
 
 def main() -> int:
