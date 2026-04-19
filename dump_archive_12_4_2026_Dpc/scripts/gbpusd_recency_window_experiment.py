@@ -267,6 +267,74 @@ def _score_metrics(metrics: dict[str, float]) -> float:
     return float(metrics["cagr_pct"] - 0.4 * abs(metrics["max_drawdown_pct"]) + 0.35 * metrics["sharpe"])
 
 
+def _window_start_pos(index: pd.DatetimeIndex, cutoff_pos: int, window_label: str) -> int:
+    if window_label == "all":
+        return 0
+    window_hours = int(window_label)
+    cutoff_time = index[cutoff_pos]
+    start_time = cutoff_time - pd.Timedelta(hours=window_hours)
+    return max(0, int(index.searchsorted(start_time, side="left")))
+
+
+def _evaluate_thresholds(
+    feature_frame: pd.DataFrame,
+    start_pos: int,
+    end_pos_exclusive: int,
+    thresholds: list[float],
+    cost_bps: float,
+) -> tuple[float, dict[str, float], pd.Series]:
+    best_threshold = thresholds[0]
+    best_metrics: dict[str, float] | None = None
+    best_equity: pd.Series | None = None
+    best_score = -float("inf")
+
+    period = feature_frame.iloc[start_pos:end_pos_exclusive].copy()
+    for threshold in thresholds:
+        eval_frame = period.copy()
+        eval_frame["signal"] = _signal_from_scores(eval_frame, threshold)
+        equity, metrics = _period_metrics(eval_frame, cost_bps=cost_bps)
+        score = _score_metrics(metrics)
+        if score > best_score:
+            best_score = score
+            best_threshold = threshold
+            best_metrics = metrics
+            best_equity = equity
+
+    if best_metrics is None or best_equity is None:
+        raise RuntimeError("No threshold candidate could be evaluated")
+    return best_threshold, best_metrics, best_equity
+
+
+def _evaluate_window_fold(
+    feature_frame: pd.DataFrame,
+    window_label: str,
+    cutoff_pos: int,
+    test_horizon_bars: int,
+    thresholds: list[float],
+    cost_bps: float,
+) -> tuple[float, dict[str, float], dict[str, float], pd.Series, pd.Series]:
+    index = feature_frame.index
+    train_start_pos = _window_start_pos(index, cutoff_pos, window_label)
+    train_end_pos_exclusive = cutoff_pos
+    test_start_pos = cutoff_pos
+    test_end_pos_exclusive = min(len(feature_frame), cutoff_pos + test_horizon_bars + 1)
+    if test_end_pos_exclusive - test_start_pos < 2:
+        raise RuntimeError("Test window is too short")
+
+    best_threshold, train_metrics, train_equity = _evaluate_thresholds(
+        feature_frame=feature_frame,
+        start_pos=train_start_pos,
+        end_pos_exclusive=train_end_pos_exclusive,
+        thresholds=thresholds,
+        cost_bps=cost_bps,
+    )
+
+    test_period = feature_frame.iloc[test_start_pos:test_end_pos_exclusive].copy()
+    test_period["signal"] = _signal_from_scores(test_period, best_threshold)
+    test_equity, test_metrics = _period_metrics(test_period, cost_bps=cost_bps)
+    return best_threshold, train_metrics, test_metrics, train_equity, test_equity
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Download and snapshot GBPUSD 1m data")
     parser.add_argument("--symbol", default="GBPUSD=X")
