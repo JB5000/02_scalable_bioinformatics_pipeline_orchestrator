@@ -338,6 +338,10 @@ def _evaluate_window_fold(
     return best_threshold, train_metrics, test_metrics, train_equity, test_equity
 
 
+def _feature_families(fast_spans: list[int], slow_spans: list[int]) -> list[dict[str, int]]:
+    return [{"fast_span": fast, "slow_span": slow} for fast in fast_spans for slow in slow_spans if slow > fast]
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Download and snapshot GBPUSD 1m data")
     parser.add_argument("--symbol", default="GBPUSD=X")
@@ -532,7 +536,8 @@ def main() -> int:
         "test_horizon_hours": args.test_horizon_hours,
         "fold_step_hours": args.fold_step_hours,
         "cost_bps": args.cost_bps,
-        "feature_families": [{"fast_span": fast, "slow_span": slow} for fast in fast_spans for slow in slow_spans if slow > fast],
+        "feature_family_count": len(_feature_families(fast_spans, slow_spans)),
+        "feature_families": _feature_families(fast_spans, slow_spans),
         "files": {
             "raw_csv": str(raw_csv),
             "fold_results_csv": str(results_csv),
