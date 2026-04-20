@@ -480,6 +480,7 @@ def main() -> int:
     ranking_df = summary_df[["window_label", "mean_test_score", "mean_test_cagr_pct", "mean_test_sharpe", "mean_test_max_drawdown_pct", "mean_test_hit_rate_pct", "folds"]].copy()
     ranking_csv = output_dir / "ranking.csv"
     ranking_df.to_csv(ranking_csv, index=False)
+    logger.info("Saved ranking to %s", ranking_csv)
 
     latest_fold = int(results_df["fold_id"].max())
     latest_fold_rows = results_df[results_df["fold_id"] == latest_fold].copy()
@@ -517,6 +518,7 @@ def main() -> int:
         fig.tight_layout()
         fig.savefig(window_score_plot, dpi=180, bbox_inches="tight")
         plt.close(fig)
+        logger.info("Saved window comparison plot to %s", window_score_plot)
 
     all_history_row = summary_df[summary_df["window_label"] == "all_history"]
     best_row = summary_df.iloc[0].to_dict()
