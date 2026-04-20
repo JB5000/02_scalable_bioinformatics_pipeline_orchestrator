@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""GBPUSD minute-data ingestion for the recency experiment.
+"""Walk-forward recency experiment for GBPUSD minute data.
 
-This first stage only downloads or loads the raw 1m data, normalizes the OHLC
-columns, and writes a CSV snapshot. Later commits in this branch add the
-higher-timeframe feature engineering and walk-forward evaluation.
+The experiment compares all-history training versus recent windows by building
+higher-timeframe trend features from 1m bars and evaluating rolling folds.
 """
 
 from __future__ import annotations
@@ -343,7 +342,7 @@ def _feature_families(fast_spans: list[int], slow_spans: list[int]) -> list[dict
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Download and snapshot GBPUSD 1m data")
+    parser = argparse.ArgumentParser(description="Compare all-history vs recent-window GBPUSD strategies")
     parser.add_argument("--symbol", default="GBPUSD=X")
     parser.add_argument("--period", default="7d", help="yfinance period for 1m data, e.g. 7d or 30d")
     parser.add_argument("--interval", default="1m")
