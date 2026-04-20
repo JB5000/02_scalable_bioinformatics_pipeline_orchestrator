@@ -478,6 +478,27 @@ def main() -> int:
     ranking_csv = output_dir / "ranking.csv"
     ranking_df.to_csv(ranking_csv, index=False)
 
+    latest_fold = int(results_df["fold_id"].max())
+    latest_fold_rows = results_df[results_df["fold_id"] == latest_fold].copy()
+    latest_fold_plot = output_dir / "latest_fold_equity_comparison.png"
+    if not latest_fold_rows.empty:
+        best_per_window = latest_fold_rows.sort_values("test_score", ascending=False).groupby("window_label", as_index=False).head(1)
+        fig, ax = plt.subplots(figsize=(13, 6))
+        for _, row in best_per_window.sort_values("window_label").iterrows():
+            curve = equity_curves[int(row["row_id"])]
+            if curve.empty:
+                continue
+            rebased = curve / float(curve.iloc[0]) * 1000.0
+            ax.plot(rebased.index, rebased.values, linewidth=2.0, label=row["window_label"])
+        ax.set_title("Latest fold out-of-sample equity by training window")
+        ax.set_xlabel("Timestamp")
+        ax.set_ylabel("Rebased equity")
+        ax.grid(True, alpha=0.25)
+        ax.legend()
+        fig.tight_layout()
+        fig.savefig(latest_fold_plot, dpi=180, bbox_inches="tight")
+        plt.close(fig)
+
     print(f"Saved {len(price_data)} bars to {raw_csv}")
     return 0
 
