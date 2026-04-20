@@ -499,6 +499,22 @@ def main() -> int:
         fig.savefig(latest_fold_plot, dpi=180, bbox_inches="tight")
         plt.close(fig)
 
+    window_score_plot = output_dir / "window_comparison.png"
+    if not summary_df.empty:
+        fig, ax = plt.subplots(figsize=(11, 6))
+        colors = ["#4c78a8" if label == "all_history" else "#f58518" for label in summary_df["window_label"]]
+        bars = ax.bar(summary_df["window_label"], summary_df["mean_test_score"], color=colors)
+        ax.set_title("GBPUSD recency experiment: mean out-of-sample score by training window")
+        ax.set_xlabel("Training window")
+        ax.set_ylabel("Mean test score")
+        ax.grid(True, axis="y", alpha=0.25)
+        ax.tick_params(axis="x", rotation=25)
+        for bar in bars:
+            ax.text(bar.get_x() + bar.get_width() / 2.0, bar.get_height(), f"{bar.get_height():.2f}", ha="center", va="bottom", fontsize=8)
+        fig.tight_layout()
+        fig.savefig(window_score_plot, dpi=180, bbox_inches="tight")
+        plt.close(fig)
+
     print(f"Saved {len(price_data)} bars to {raw_csv}")
     return 0
 
