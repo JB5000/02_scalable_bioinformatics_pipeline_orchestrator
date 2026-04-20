@@ -562,6 +562,7 @@ def main() -> int:
     logger.info("Winner window: %s", best_row.get("window_label"))
     logger.info("Summary JSON: %s", summary_json)
     print(json.dumps(summary, indent=2))
+    print(f"Summary written to: {summary_json}")
 
     return 0
 
