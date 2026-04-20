@@ -9,10 +9,13 @@ higher-timeframe feature engineering and walk-forward evaluation.
 from __future__ import annotations
 
 import argparse
+import json
 import logging
+import math
 import numpy as np
 from pathlib import Path
 
+import matplotlib.pyplot as plt
 import pandas as pd
 
 try:  # pragma: no cover - optional dependency in some environments
@@ -448,6 +451,32 @@ def main() -> int:
     results_csv = output_dir / "fold_results.csv"
     results_df.to_csv(results_csv, index=False)
     logger.info("Saved fold results to %s", results_csv)
+
+    summary_rows: list[dict[str, object]] = []
+    for window_label, group in results_df.groupby("window_label", sort=True):
+        summary_rows.append(
+            {
+                "window_label": window_label,
+                "folds": int(len(group)),
+                "mean_train_score": float(group["train_score"].mean()),
+                "mean_test_score": float(group["test_score"].mean()),
+                "median_test_score": float(group["test_score"].median()),
+                "mean_test_cagr_pct": float(group["test_cagr_pct"].mean()),
+                "mean_test_max_drawdown_pct": float(group["test_max_drawdown_pct"].mean()),
+                "mean_test_sharpe": float(group["test_sharpe"].mean()),
+                "mean_test_hit_rate_pct": float(group["test_hit_rate_pct"].mean()),
+                "mean_train_bars": float(group["train_num_bars"].mean()),
+            }
+        )
+
+    summary_df = pd.DataFrame(summary_rows).sort_values("mean_test_score", ascending=False).reset_index(drop=True)
+    summary_csv = output_dir / "window_summary.csv"
+    summary_df.to_csv(summary_csv, index=False)
+    logger.info("Saved summary to %s", summary_csv)
+
+    ranking_df = summary_df[["window_label", "mean_test_score", "mean_test_cagr_pct", "mean_test_sharpe", "mean_test_max_drawdown_pct", "mean_test_hit_rate_pct", "folds"]].copy()
+    ranking_csv = output_dir / "ranking.csv"
+    ranking_df.to_csv(ranking_csv, index=False)
 
     print(f"Saved {len(price_data)} bars to {raw_csv}")
     return 0
