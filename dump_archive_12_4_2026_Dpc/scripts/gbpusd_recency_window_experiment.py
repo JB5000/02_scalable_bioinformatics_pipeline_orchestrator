@@ -515,7 +515,48 @@ def main() -> int:
         fig.savefig(window_score_plot, dpi=180, bbox_inches="tight")
         plt.close(fig)
 
-    print(f"Saved {len(price_data)} bars to {raw_csv}")
+    all_history_row = summary_df[summary_df["window_label"] == "all_history"]
+    best_row = summary_df.iloc[0].to_dict()
+    all_history_metrics = all_history_row.iloc[0].to_dict() if not all_history_row.empty else {}
+
+    summary = {
+        "generated_at": pd.Timestamp.now("UTC").isoformat(),
+        "symbol": args.symbol,
+        "source": "csv" if input_csv is not None else "yfinance",
+        "period": args.period,
+        "interval": args.interval,
+        "data_points": int(len(price_data)),
+        "timeframes": list(TIMEFRAMES),
+        "timeframe_weights": TIMEFRAME_WEIGHTS,
+        "train_windows_hours": train_windows_hours,
+        "test_horizon_hours": args.test_horizon_hours,
+        "fold_step_hours": args.fold_step_hours,
+        "cost_bps": args.cost_bps,
+        "feature_families": [{"fast_span": fast, "slow_span": slow} for fast in fast_spans for slow in slow_spans if slow > fast],
+        "files": {
+            "raw_csv": str(raw_csv),
+            "fold_results_csv": str(results_csv),
+            "window_summary_csv": str(summary_csv),
+            "ranking_csv": str(ranking_csv),
+            "window_comparison_png": str(window_score_plot),
+            "latest_fold_equity_png": str(latest_fold_plot),
+            "log_file": str(output_dir / "gbpusd_recency_experiment.log"),
+        },
+        "comparison": {
+            "all_history": all_history_metrics,
+            "winner": best_row,
+            "interpretation": "If a recent window beats all_history on mean test score, the recency hypothesis is supported on this dataset.",
+        },
+    }
+
+    summary_json = output_dir / "summary.json"
+    summary_json.write_text(json.dumps(summary, indent=2), encoding="utf-8")
+
+    logger.info("Experiment finished")
+    logger.info("Winner window: %s", best_row.get("window_label"))
+    logger.info("Summary JSON: %s", summary_json)
+    print(json.dumps(summary, indent=2))
+
     return 0
 
 
