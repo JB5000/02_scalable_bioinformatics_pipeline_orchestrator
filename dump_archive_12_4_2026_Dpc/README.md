@@ -6,6 +6,7 @@ A production-ready Python toolkit for analyzing microbial community composition,
 
 ## Change Log
 
+- [2026-04-21] - Added `scripts/gbpusd_recency_window_experiment.py` and `run_gbpusd_recency_experiment.sh` to download GBPUSD 1m data, aggregate higher timeframes, and compare all-history vs recent training windows in walk-forward tests. - To validate whether recency beats long-history training when markets change.
 - [2026-04-21] - Added `start_web_and_train.sh` to launch local web access (http://127.0.0.1:8787) and run trading training in one command with deterministic output path and launcher log. - To make simulator testing faster and reduce setup errors.
 - [2026-04-15] - Improved trading training workflow: exposed `--risk-off-buffer` in `scripts/auto_monthly_investment_planner.py`, enhanced `run_trading_training.sh` with named flags (`--trials`, `--start`, `--end`, `--seed`, `--python`, `--output-dir`) and help output. - To make optimization runs easier, reproducible, and safer to execute from a fresh clone.
 - [2026-04-13] - Updated `polishing_experiment/generate_presentation_charts.py` to render chart titles/labels/notes in English and moved the benchmark coverage note lower in the figure header area. - To match presentation language requirements and improve note readability.
@@ -28,6 +29,21 @@ A production-ready Python toolkit for analyzing microbial community composition,
 cd /home/jonyb/python_folder/dump_archive_12_4_2026_Dpc
 ./run_trading_training.sh --trials 40 --end 2026-04-15
 ```
+
+### GBPUSD recency experiment
+```bash
+cd /home/jonyb/python_folder/dump_archive_12_4_2026_Dpc
+./run_gbpusd_recency_experiment.sh --period 7d --test-horizon-hours 12 --fold-step-hours 12
+```
+
+Main outputs:
+- `analysis_outputs/gbpusd_recency_experiment_*/gbpusd_recency_experiment.log`
+- `analysis_outputs/gbpusd_recency_experiment_*/gbpusd_1m_raw.csv`
+- `analysis_outputs/gbpusd_recency_experiment_*/fold_results.csv`
+- `analysis_outputs/gbpusd_recency_experiment_*/window_summary.csv`
+- `analysis_outputs/gbpusd_recency_experiment_*/ranking.csv`
+- `analysis_outputs/gbpusd_recency_experiment_*/window_comparison.png`
+- `analysis_outputs/gbpusd_recency_experiment_*/latest_fold_equity_comparison.png`
 
 Optional parameters:
 - `--start YYYY-MM-DD`
